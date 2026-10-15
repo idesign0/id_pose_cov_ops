@@ -62,7 +62,12 @@ endif()
 # -----------------------------------------
 # ROS 1 & 2 common deps:
 # -----------------------------------------
-find_package(mrpt_poses REQUIRED)
+# MRPT v2 naming: this workspace builds MRPT 2.15.21 via mrpt_ros/mrpt_libposes, which
+# declares project(mrpt-poses) and add_library(mrpt::poses ALIAS ...) (see MRPT
+# cmakemodules/DeclareMRPTLib.cmake:109,277). Upstream moved this file to the MRPT 3.x
+# names (mrpt_poses / mrpt::mrpt_poses) in PR #14, but mrpt3 is deliberately skip-listed
+# here in favour of the v2 distribution, so pin the v2 spelling.
+find_package(mrpt-poses REQUIRED)
 
 ###########
 ## Build ##
@@ -107,12 +112,12 @@ if (ROS_1)
 		PRIVATE
 		${catkin_LIBRARIES}
 		mrpt::ros1bridge
-		mrpt::mrpt_poses
+		mrpt::poses
 		)
 else()
 	target_link_libraries(${PROJECT_NAME}
 		mrpt_libros_bridge::mrpt_libros_bridge
-		mrpt::mrpt_poses
+		mrpt::poses
 		rclcpp::rclcpp
 		tf2::tf2
 		${geometry_msgs_TARGETS}
@@ -197,7 +202,7 @@ if (ROS_2)
 	# id: disabled -- googletest ABI skew (undefined testing::internal::MakeAndRegisterTestInfo(std::string,...))
 	# ament_add_gtest(${PROJECT_NAME}-test test/test_pose_cov_ops.cpp)
 
-	ament_export_dependencies(mrpt_libros_bridge mrpt_poses)
+	ament_export_dependencies(mrpt_libros_bridge mrpt-poses)
 
 	# Export old-style CMake variables
 	ament_export_include_directories("include/${PROJECT_NAME}")
@@ -212,7 +217,7 @@ endif()
 if(TARGET ${PROJECT_NAME}-test)
 	target_link_libraries(${PROJECT_NAME}-test
 		${PROJECT_NAME}
-		mrpt::mrpt_poses
+		mrpt::poses
 		)
 	if (ROS_1)
 		target_link_libraries(${PROJECT_NAME}-test mrpt::ros1bridge)
